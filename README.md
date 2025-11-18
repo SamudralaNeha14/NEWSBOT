@@ -1,29 +1,58 @@
-📰 NEWSBot – News Research Assistant
+**🚀 NEWSBot – AI-Powered News Research Assistant (v2.0)**
 
-NEWSBot is an AI-powered assistant that helps you analyze, summarize, and extract insights from news articles in real-time.
+Your personal AI assistant for researching, analyzing, and understanding news articles — faster and smarter.
 
-It’s built with Streamlit and Groq Cloud’s LLaMA 3.3 model for lightning-fast, high-quality natural language understanding.
+NEWSBot now comes with a fully redesigned UI, genre-based trending news, location-based regional updates, and an improved multi-article research workspace.
+
+It’s powered by Streamlit and Groq Cloud’s LLaMA 3.3 70B model for ultra-fast, high-quality responses.
 
 🔗 Live App: https://newsbot-research-assistant.streamlit.app/
 
-🚀 Features
+**✨ What’s New in v2.0?**
 
-✅ Extracts article content automatically from any URL.
+**🏠 Modern Home Dashboard**
 
-✅ Understands complex questions and answers based on the loaded news.
+Browse trending news by genre: AI, Business, World, Health, Sports, Entertainment & more.
 
-✅ Multi-article analysis — ask questions across multiple loaded sources.
+Auto-fetches articles using NewsAPI.
 
-✅ Powered by Groq’s LLaMA 3.3 70B model for high-speed responses.
+Smart Regional News powered by your chosen location (Texas by default).
 
-✅ No database or API backend required — all local and Streamlit-based.
+Expand articles, preview content, and load them directly into the research workspace.
 
-🧠 How It Works
+**🔍 Research Workspace**
 
-1. Enter one or more article URLs in the sidebar.
+A powerful environment to analyze multiple articles together.
 
-2. The bot automatically scrapes and extracts readable text from each article.
+**Key Improvements**
 
-3. Ask a question in the chat box.
+✅ Load articles by URL
+✅ Automatic content extraction + cleanup
+✅ Multi-article question answering
+✅ Chat-style interface with full conversation history
+✅ Delete individual articles or clear all
+✅ Beautifully redesigned UI + custom background theme
 
-4. NEWSBot uses Groq Cloud LLM to analyze and summarize the article content to answer your question.
+**⚙️ Powered by Groq + LLaMA 3.3**
+
+All research queries are generated using:
+
+Groq’s LLaMA 3.3 70B Versatile model
+
+Super-fast inference
+
+Accurate, source-grounded answers
+
+No external backend needed — everything happens inside the Streamlit app
+
+**🧠 How It Works**
+
+Choose a genre or paste any article URL.
+
+NEWSBot scrapes and extracts readable content.
+
+Load multiple articles into the workspace.
+
+Ask questions in chat — NEWSBot analyzes all articles combined.
+
+Get concise, evidence-based answers grounded strictly in the article content.
