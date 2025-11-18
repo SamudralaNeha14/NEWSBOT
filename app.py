@@ -17,19 +17,19 @@ def add_bg_from_local(image_file):
     page_bg_img = f"""
     <style>
     [data-testid="stAppViewContainer"] {{
-        background-image: url("data:image/jpg;base64,{encoded_img}");
+        background-image: url("data:image1/jpg;base64,{encoded_img}");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
     }}
     
     [data-testid="stHeader"] {{
-        background: rgba(0,0,0,0.9);
+        background: rgba(0,0,0,0);
     }}
     
     [data-testid="stSidebar"] {{
-        background-color: rgba(30, 30, 46, 0.4);
-        backdrop-filter: blur(10px);
+        background-color: rgba(30, 30, 46, 0.2);
+        backdrop-filter: blur(0px);
     }}
     
     /* Main content area */
@@ -40,18 +40,18 @@ def add_bg_from_local(image_file):
     
     /* Chat messages styling */
     .stChatMessage {{
-        background-color: rgba(255, 255, 255, 0.9) !important;
+        background-color: rgba(255, 255, 255, 0.6) !important;
         border-radius: 12px;
         padding: 1rem !important;
         margin-bottom: 1rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.6);
     }}
     
     /* Input box styling */
     .stTextInput > div > div > input {{
-        background-color: rgba(0, 0, 0, 0.3) !important;
+        background-color: rgba(0, 0, 0, 1) !important;
         border-radius: 8px;
-        border: 2px solid rgba(0,0,0,0.2) !important;
+        border: 2px solid rgba(0,0,0,0.4) !important;
         padding: 0.75rem !important;
         color: #FFFFFF !important;
     }}
@@ -63,7 +63,7 @@ def add_bg_from_local(image_file):
     /* Button styling */
     .stButton > button {{
         background-color: #2E7D32;
-        color: white;
+        color: black;
         border-radius: 8px;
         border: none;
         padding: 0.6rem 1.2rem;
@@ -74,7 +74,7 @@ def add_bg_from_local(image_file):
     
     .stButton > button:hover {{
         background-color: #1B5E20;
-        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.9);
     }}
     
     /* Delete button styling */
@@ -90,7 +90,7 @@ def add_bg_from_local(image_file):
     
     /* Sidebar text styling */
     .stSidebar .stMarkdown {{
-        color: #FFFFFF;
+        color: #000000;
     }}
     
     /* Title styling */
@@ -102,7 +102,7 @@ def add_bg_from_local(image_file):
     /* Info box styling */
     .stInfo {{
         background-color: rgba(13, 110, 253, 0.25) !important;
-        border-left: 4px solid #0D6EFD;
+        border-left: 4px solid #042659;
         border-radius: 8px;
         padding: 1rem;
     }}
@@ -137,7 +137,7 @@ def add_bg_from_local(image_file):
     
     /* URL display in sidebar */
     .stText {{
-        color: #FFFFFF;
+        color: #8c0303;
         font-size: 0.85rem;
         word-break: break-word;
     }}
@@ -150,7 +150,7 @@ def add_bg_from_local(image_file):
     
     /* Divider */
     hr {{
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 3px solid rgba(255, 255, 255, 1);
     }}
     
     /* News card styling */
@@ -159,12 +159,12 @@ def add_bg_from_local(image_file):
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
         transition: transform 0.2s ease;
     }}
     
     .news-card:hover {{
-        transform: translateY(-2px);
+        transform: translateY(2px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }}
     
@@ -195,7 +195,7 @@ st.set_page_config(
 )
 
 # Add the background image
-add_bg_from_local("image.jpg")
+add_bg_from_local("image1.jpg")
 
 # Initialize session state
 if 'messages' not in st.session_state:
@@ -330,10 +330,10 @@ with st.sidebar:
             st.rerun()
     
     st.markdown("---")
-    st.subheader("📍 Your Location")
-    
+    st.markdown("<h3 style='color: black;'>📍Your Location</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='color: black;'>Enter Your Location </p>", unsafe_allow_html=True)
     location_input = st.text_input(
-        "Enter your location",
+        "",
         value=st.session_state.user_location,
         placeholder="e.g., India, New York, London"
     )
@@ -445,9 +445,9 @@ elif st.session_state.page == "research":
     
     # Sidebar for settings
     with st.sidebar:
-        st.header("📰 Load Articles")
-        
-        url_input = st.text_input("Enter article URL 📎", placeholder="https://example.com/article")
+        st.markdown("<h1 style='color: black;'>📰 Load Articles</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='color: black;'>Enter article URL 🔗</p>", unsafe_allow_html=True)
+        url_input = st.text_input("", placeholder="https://example.com/article")
         
         if st.button("Load Article", use_container_width=True):
             if url_input:
@@ -463,8 +463,8 @@ elif st.session_state.page == "research":
         
         # Display loaded articles
         if st.session_state.article_content:
-            st.markdown("---")
-            st.subheader("📚 Loaded Articles")
+            st.markdown("------")
+            st.markdown("<h3 style='color: black;'>📚 Loaded Articles</h3>", unsafe_allow_html=True)
             for i, url in enumerate(st.session_state.article_content.keys(), 1):
                 col1, col2 = st.columns([3, 1])
                 with col1:
