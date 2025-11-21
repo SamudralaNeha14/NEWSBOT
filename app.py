@@ -28,7 +28,7 @@ def add_bg_from_local(image_file):
     }}
     
     [data-testid="stSidebar"] {{
-        background-color: rgba(30, 30, 46, 0.2);
+        background-color: rgba(30, 30, 46, 0.9);
         backdrop-filter: blur(0px);
     }}
     
@@ -417,7 +417,7 @@ with st.sidebar:
     st.markdown("---")
     
     # Genre selector dropdown
-    st.markdown("<h3 style='color: black;'>📚 Select Genre</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color: white;'>📚 Select Genre</h3>", unsafe_allow_html=True)
     
     genre_options = ["Select a genre"] + list(GENRES.keys())
     selected_genre = st.selectbox(
@@ -435,8 +435,8 @@ with st.sidebar:
             st.rerun()
     
     st.markdown("---")
-    st.markdown("<h3 style='color: black;'>📍 Your Location</h3>", unsafe_allow_html=True)
-    st.markdown("<p style='color: black;'>Enter Your Location</p>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color: white;'>📍 Your Location</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='color: white;'>Enter Your Location</p>", unsafe_allow_html=True)
     location_input = st.text_input(
         "",
         value=st.session_state.user_location,
