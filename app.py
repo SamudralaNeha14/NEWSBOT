@@ -217,6 +217,7 @@ if 'genre_page_keyword' not in st.session_state:
 GENRES = {
     "🤖 AI & Tech": "artificial intelligence technology",
     "💼 Business": "business economy finance",
+    "📈 Stocks & Finance": "stocks finance cryptocurrency markets trading",
     "🏥 Health": "health medical science",
     "🌍 World": "world international news",
     "⚽ Sports": "sports athletics games",
@@ -576,6 +577,7 @@ elif st.session_state.page == "research":
             <p style="color: #000000;">NewsBOT will analyze the content and answer your questions!</p>
         </div>
         """, unsafe_allow_html=True)
+
 # Footer
 st.markdown("---")
 st.markdown("<p style='text-align: center; color: rgba(0,0,0,0.7); font-size: 0.9rem;'><b>Built with Streamlit & Groq Cloud | NewsBOT v2.1</b></p>", unsafe_allow_html=True)
