@@ -28,7 +28,7 @@ def add_bg_from_local(image_file):
     }}
     
     [data-testid="stSidebar"] {{
-        background-color: rgba(30, 30, 46, 0.9);
+        background-color: rgba(30, 30, 46, 0.2);
         backdrop-filter: blur(0px);
     }}
     
@@ -62,8 +62,8 @@ def add_bg_from_local(image_file):
     
     /* Button styling */
     .stButton > button {{
-        background-color: #2E7D32;
-        color: black;
+        background-color: #1B5E20;
+        color: #FFFFFF;
         border-radius: 8px;
         border: none;
         padding: 0.6rem 1.2rem;
@@ -73,8 +73,8 @@ def add_bg_from_local(image_file):
     }}
     
     .stButton > button:hover {{
-        background-color: #1B5E20;
-        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.9);
+        background-color: #0D3E12;
+        box-shadow: 0 4px 12px rgba(27, 94, 32, 0.9);
     }}
     
     /* Delete button styling */
@@ -402,6 +402,7 @@ except Exception as e:
 # Sidebar navigation
 with st.sidebar:
     st.header("🗂️ Navigation")
+    st.markdown("<style>div[data-testid='stSidebar'] h1 { color: white !important; }</style>", unsafe_allow_html=True)
     
     # Navigation buttons arranged vertically
     if st.button("🏠 Home", use_container_width=True, key="btn_home"):
@@ -417,7 +418,7 @@ with st.sidebar:
     st.markdown("---")
     
     # Genre selector dropdown
-    st.markdown("<h3 style='color: white;'>📚 Select Genre</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color: black;'>📚 Select Genre</h3>", unsafe_allow_html=True)
     
     genre_options = ["Select a genre"] + list(GENRES.keys())
     selected_genre = st.selectbox(
@@ -435,8 +436,8 @@ with st.sidebar:
             st.rerun()
     
     st.markdown("---")
-    st.markdown("<h3 style='color: white;'>📍 Your Location</h3>", unsafe_allow_html=True)
-    st.markdown("<p style='color: white;'>Enter Your Location</p>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color: black;'>📍 Your Location</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='color: black;'>Enter Your Location</p>", unsafe_allow_html=True)
     location_input = st.text_input(
         "",
         value=st.session_state.user_location,
