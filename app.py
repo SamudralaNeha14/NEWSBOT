@@ -186,12 +186,12 @@ def add_bg_from_local(image_file):
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
 
-# Page config
+# Page config with sidebar initially collapsed
 st.set_page_config(
     page_title="NEWSBOT - News Research Assistant",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # Add the background image
@@ -210,6 +210,8 @@ if 'expanded_article' not in st.session_state:
     st.session_state.expanded_article = None
 if 'user_location' not in st.session_state:
     st.session_state.user_location = "Texas"
+if 'genre_page_keyword' not in st.session_state:
+    st.session_state.genre_page_keyword = None
 
 # News genres and keywords
 GENRES = {
@@ -225,7 +227,7 @@ GENRES = {
     "📍 Regional": "regional_local"
 }
 
-def fetch_news_by_genre(genre_keyword, api_key):
+def fetch_news_by_genre(genre_keyword, api_key, page_size=10):
     """Fetch news articles using NewsAPI based on genre keyword"""
     try:
         url = "https://newsapi.org/v2/everything"
@@ -233,7 +235,7 @@ def fetch_news_by_genre(genre_keyword, api_key):
             "q": genre_keyword,
             "sortBy": "publishedAt",
             "language": "en",
-            "pageSize": 10,
+            "pageSize": page_size,
             "apiKey": api_key
         }
         
@@ -247,6 +249,28 @@ def fetch_news_by_genre(genre_keyword, api_key):
             return []
     except Exception as e:
         st.error(f"Error fetching news: {str(e)}")
+        return []
+
+def fetch_top_headlines(api_key, page_size=30):
+    """Fetch top headlines from across the world"""
+    try:
+        url = "https://newsapi.org/v2/top-headlines"
+        params = {
+            "language": "en",
+            "pageSize": page_size,
+            "apiKey": api_key
+        }
+        
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data.get("status") == "ok":
+            return data.get("articles", [])
+        else:
+            return []
+    except Exception as e:
+        st.error(f"Error fetching headlines: {str(e)}")
         return []
 
 def extract_article_content(url):
@@ -306,6 +330,66 @@ Provide a clear, informative answer based solely on the article content. If the 
     except Exception as e:
         return f"Error querying Groq: {str(e)}"
 
+def display_article(article, idx, is_home_page=True):
+    """Display a single article"""
+    article_key = f"article_{idx}"
+    is_expanded = st.session_state.expanded_article == article_key
+    
+    col1, col2, col3 = st.columns([2.5, 0.5, 0.5])
+    
+    with col1:
+        st.markdown(f"#### {article.get('title', 'No Title')}")
+        st.markdown(f"**Source:** {article.get('source', {}).get('name', 'Unknown')}")
+        
+        description = article.get('description', '')
+        if description:
+            if is_expanded:
+                st.markdown(f"{description}")
+            else:
+                st.markdown(f"{description[:200]}...")
+        
+        pub_date = article.get('publishedAt', '')
+        if pub_date:
+            st.caption(f"📅 {pub_date[:10]}")
+        
+        # Show additional info when expanded
+        if is_expanded:
+            st.markdown("---")
+            author = article.get('author', 'Unknown')
+            content = article.get('content', 'No content available')
+            url = article.get('url', '')
+            
+            st.markdown(f"**Author:** {author}")
+            st.markdown(f"**Full Content Preview:**")
+            st.markdown(f"{content}")
+            
+            if url:
+                st.markdown(f"**[🔗 Read Full Article]({url})**")
+    
+    with col2:
+        if st.button("📖 Load", key=f"load_{idx}", use_container_width=True):
+            article_url = article.get('url', '')
+            if article_url:
+                with st.spinner("Extracting article content..."):
+                    content = extract_article_content(article_url)
+                    if not content.startswith("Error"):
+                        st.session_state.article_content[article_url] = content
+                        st.session_state.page = "research"
+                        st.success("✅ Article loaded! Go to Research tab.")
+                        st.rerun()
+                    else:
+                        st.error(content)
+    
+    with col3:
+        if st.button("📖 Read More" if not is_expanded else "📕 Read Less", key=f"expand_{idx}", use_container_width=True):
+            if is_expanded:
+                st.session_state.expanded_article = None
+            else:
+                st.session_state.expanded_article = article_key
+            st.rerun()
+    
+    st.markdown("---")
+
 # Get API keys from secrets
 try:
     groq_api_key = st.secrets["groq"]["api_key"]
@@ -318,138 +402,106 @@ except Exception as e:
 with st.sidebar:
     st.header("🗂️ Navigation")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🏠 Home", use_container_width=True):
-            st.session_state.page = "home"
-            st.session_state.messages = []
-            st.rerun()
-    with col2:
-        if st.button("📖 Research", use_container_width=True):
-            st.session_state.page = "research"
+    # Navigation buttons arranged vertically
+    if st.button("🏠 Home", use_container_width=True, key="btn_home"):
+        st.session_state.page = "home"
+        st.session_state.messages = []
+        st.session_state.selected_genre = None
+        st.rerun()
+    
+    if st.button("📖 Research", use_container_width=True, key="btn_research"):
+        st.session_state.page = "research"
+        st.rerun()
+    
+    st.markdown("---")
+    
+    # Genre selector dropdown
+    st.markdown("<h3 style='color: black;'>📚 Select Genre</h3>", unsafe_allow_html=True)
+    
+    genre_options = ["Select a genre"] + list(GENRES.keys())
+    selected_genre = st.selectbox(
+        "Choose a genre to explore",
+        options=genre_options,
+        label_visibility="collapsed",
+        key="genre_dropdown"
+    )
+    
+    if selected_genre != "Select a genre":
+        if st.button("🔍 View Genre News", use_container_width=True, key="btn_view_genre"):
+            st.session_state.selected_genre = selected_genre
+            st.session_state.genre_page_keyword = GENRES[selected_genre]
+            st.session_state.page = "genre_page"
             st.rerun()
     
     st.markdown("---")
-    st.markdown("<h3 style='color: black;'>📍Your Location</h3>", unsafe_allow_html=True)
-    st.markdown("<p style='color: black;'>Enter Your Location </p>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color: black;'>📍 Your Location</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='color: black;'>Enter Your Location</p>", unsafe_allow_html=True)
     location_input = st.text_input(
         "",
         value=st.session_state.user_location,
-        placeholder="e.g., India, New York, London"
+        placeholder="e.g., India, New York, London",
+        key="location_input"
     )
     
     if location_input and location_input != st.session_state.user_location:
         st.session_state.user_location = location_input
         st.success(f"✅ Location updated to {location_input}")
 
-# HOME PAGE
+# HOME PAGE - Top 30 Trending News
 if st.session_state.page == "home":
     st.markdown("<h1 style='color: black;'>🤖 NEWSBOT</h1>", unsafe_allow_html=True)
-    st.markdown("<h5 style='color: black;'>Stay Updated with Latest News Across All Genres</h5>", unsafe_allow_html=True)
+    st.markdown("<h5 style='color: black;'>Top 30 Trending News From Around The World</h5>", unsafe_allow_html=True)
+    
     if not news_api_key:
         st.warning("⚠️ NewsAPI key not configured. Please add it to secrets.toml to view trending news.")
         st.info("Get a free API key from https://newsapi.org")
     else:
-        st.markdown("### 📰 Select a Genre")
+        with st.spinner("Fetching top 30 trending news worldwide..."):
+            articles = fetch_top_headlines(news_api_key, page_size=30)
         
-        # Display genre buttons in columns
-        cols = st.columns(3)
-        for idx, (genre, keyword) in enumerate(GENRES.items()):
-            with cols[idx % 3]:
-                if st.button(genre, use_container_width=True, key=f"genre_{idx}"):
-                    st.session_state.selected_genre = genre
-                    st.session_state.genre_keyword = keyword
-                    st.rerun()
-        
-        # Display selected genre news
-        if st.session_state.selected_genre:
-            st.markdown(f"### {st.session_state.selected_genre}")
+        if articles:
             st.markdown("---")
-            
-            with st.spinner(f"Fetching {st.session_state.selected_genre} news..."):
-                # Check if it's regional news
-                if st.session_state.genre_keyword == "regional_local":
-                    news_keyword = st.session_state.user_location
-                    articles = fetch_news_by_genre(news_keyword, news_api_key)
-                else:
-                    articles = fetch_news_by_genre(st.session_state.genre_keyword, news_api_key)
-            
-            if articles:
-                for idx, article in enumerate(articles):
-                    article_key = f"article_{idx}"
-                    is_expanded = st.session_state.expanded_article == article_key
-                    
-                    col1, col2, col3 = st.columns([2.5, 0.5, 0.5])
-                    
-                    with col1:
-                        st.markdown(f"#### {article.get('title', 'No Title')}")
-                        st.markdown(f"**Source:** {article.get('source', {}).get('name', 'Unknown')}")
-                        
-                        description = article.get('description', '')
-                        if description:
-                            if is_expanded:
-                                st.markdown(f"{description}")
-                            else:
-                                st.markdown(f"{description[:200]}...")
-                        
-                        pub_date = article.get('publishedAt', '')
-                        if pub_date:
-                            st.caption(f"📅 {pub_date[:10]}")
-                        
-                        # Show additional info when expanded
-                        if is_expanded:
-                            st.markdown("---")
-                            author = article.get('author', 'Unknown')
-                            content = article.get('content', 'No content available')
-                            url = article.get('url', '')
-                            
-                            st.markdown(f"**Author:** {author}")
-                            st.markdown(f"**Full Content Preview:**")
-                            st.markdown(f"{content}")
-                            
-                            if url:
-                                st.markdown(f"**[🔗 Read Full Article]({url})**")
-                    
-                    with col2:
-                        if st.button("📖 Load", key=f"load_{idx}", use_container_width=True):
-                            article_url = article.get('url', '')
-                            if article_url:
-                                with st.spinner("Extracting article content..."):
-                                    content = extract_article_content(article_url)
-                                    if not content.startswith("Error"):
-                                        st.session_state.article_content[article_url] = content
-                                        st.session_state.page = "research"
-                                        st.success("✅ Article loaded! Go to Research tab.")
-                                        st.rerun()
-                                    else:
-                                        st.error(content)
-                    
-                    with col3:
-                        if st.button("📖 Read More" if not is_expanded else "📕 Read Less", key=f"expand_{idx}", use_container_width=True):
-                            if is_expanded:
-                                st.session_state.expanded_article = None
-                            else:
-                                st.session_state.expanded_article = article_key
-                            st.rerun()
-                    
-                    st.markdown("---")
-            else:
-                st.info("No articles found for this genre.")
+            for idx, article in enumerate(articles):
+                display_article(article, idx, is_home_page=True)
+        else:
+            st.info("No trending articles found.")
+
+# GENRE PAGE - Top 15 News for Selected Genre
+elif st.session_state.page == "genre_page":
+    st.markdown("<h1 style='color: black;'>🤖 NEWSBOT</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h5 style='color: black;'>{st.session_state.selected_genre} - Top 15 Articles</h5>", unsafe_allow_html=True)
+    
+    if not news_api_key:
+        st.warning("⚠️ NewsAPI key not configured.")
+    else:
+        # Handle regional news
+        if st.session_state.genre_page_keyword == "regional_local":
+            search_keyword = st.session_state.user_location
+        else:
+            search_keyword = st.session_state.genre_page_keyword
+        
+        with st.spinner(f"Fetching top 15 {st.session_state.selected_genre} articles..."):
+            articles = fetch_news_by_genre(search_keyword, news_api_key, page_size=15)
+        
+        if articles:
+            st.markdown("---")
+            for idx, article in enumerate(articles):
+                display_article(article, idx, is_home_page=False)
+        else:
+            st.info(f"No articles found for {st.session_state.selected_genre}")
 
 # RESEARCH PAGE
 elif st.session_state.page == "research":
     st.markdown("<h1 style='color: black;'>🤖 NEWSBOT</h1>", unsafe_allow_html=True)
-    
     st.markdown("<h6 style='color: black;'>Your News Research Assistant</h6>", unsafe_allow_html=True)
-
     
     # Sidebar for settings
     with st.sidebar:
         st.markdown("<h1 style='color: black;'>📰 Load Articles</h1>", unsafe_allow_html=True)
         st.markdown("<p style='color: black;'>Enter article URL 🔗</p>", unsafe_allow_html=True)
-        url_input = st.text_input("", placeholder="https://example.com/article")
+        url_input = st.text_input("", placeholder="https://example.com/article", key="url_input")
         
-        if st.button("Load Article", use_container_width=True):
+        if st.button("Load Article", use_container_width=True, key="btn_load_article"):
             if url_input:
                 with st.spinner("Extracting article content..."):
                     content = extract_article_content(url_input)
@@ -475,7 +527,7 @@ elif st.session_state.page == "research":
                         st.rerun()
             
             st.markdown("---")
-            if st.button("Clear All", use_container_width=True):
+            if st.button("Clear All", use_container_width=True, key="btn_clear_all"):
                 st.session_state.article_content = {}
                 st.session_state.messages = []
                 st.rerun()
@@ -518,12 +570,12 @@ elif st.session_state.page == "research":
             <ol style="color: #000000;">
                 <li>📎 Paste article URLs in the sidebar to load them</li>
                 <li>💬 Ask questions about your articles in the chat</li>
-                <li>🏠 Go to Home to explore trending news by genre</li>
+                <li>🏠 Go to Home to explore top 30 trending news worldwide</li>
+                <li>📚 Select from genres in sidebar to explore news by category</li>
             </ol>
             <p style="color: #000000;">NewsBOT will analyze the content and answer your questions!</p>
         </div>
         """, unsafe_allow_html=True)
-
 # Footer
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: rgba(0,0,0,0.7); font-size: 0.9rem;'><b>Built with Streamlit & Groq Cloud | NewsBOT v2.0</b></p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: rgba(0,0,0,0.7); font-size: 0.9rem;'><b>Built with Streamlit & Groq Cloud | NewsBOT v2.1</b></p>", unsafe_allow_html=True)
