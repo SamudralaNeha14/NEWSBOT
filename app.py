@@ -436,8 +436,8 @@ with st.sidebar:
             st.rerun()
     
     st.markdown("---")
-    st.markdown("<h3 style='color: white;'>📍 For Regional News </h3>", unsafe_allow_html=True)
-    st.markdown("<p style='color: white;'>Enter  Location</p>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color: white;'>📍 Your Location </h3>", unsafe_allow_html=True)
+    st.markdown("<p style='color: white;'>Enter Your Location</p>", unsafe_allow_html=True)
     location_input = st.text_input(
         "",
         value=st.session_state.user_location,
