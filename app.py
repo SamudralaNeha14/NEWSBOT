@@ -224,8 +224,7 @@ GENRES = {
     "🎬 Entertainment": "entertainment movies celebrity",
     "🔬 Science": "science research discovery",
     "🚀 Innovation": "innovation startup technology",
-    "🏛️ Politics": "politics government election policy",
-    "📍 Regional": "regional_local"
+    "🏛️ Politics": "politics government election policy"
 }
 
 def fetch_news_by_genre(genre_keyword, api_key, page_size=10):
