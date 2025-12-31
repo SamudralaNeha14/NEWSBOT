@@ -209,7 +209,7 @@ if 'selected_genre' not in st.session_state:
 if 'expanded_article' not in st.session_state:
     st.session_state.expanded_article = None
 if 'user_location' not in st.session_state:
-    st.session_state.user_location = "Texas"
+    st.session_state.user_location = None
 if 'genre_page_keyword' not in st.session_state:
     st.session_state.genre_page_keyword = None
 
