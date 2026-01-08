@@ -6,7 +6,7 @@ NEWSBot now comes with a fully redesigned UI, genre-based trending news, locatio
 
 It’s powered by Streamlit and Groq Cloud’s LLaMA 3.3 70B model for ultra-fast, high-quality responses.
 
-🔗 Live App: https://newsbot-research-assistant.streamlit.app/
+🔗 Live App: https://newsbot-assistant.streamlit.app/
 
 **✨ What’s New in v2.0?**
 
